@@ -120,7 +120,7 @@ int main( int argc, char** argv )
 
 
   ROS_INFO("Waiting until a face becomes visible...");
-  while (!listener.waitForTransform("base_footprint", "face_0", ros::Time::now(), ros::Duration(5.0))) {
+  while (!listener.waitForTransform("base_link", "face_0", ros::Time::now(), ros::Duration(5.0))) {
         ROS_DEBUG("Still no face visible...");
         r.sleep();
   }
@@ -156,17 +156,7 @@ int main( int argc, char** argv )
             int face_idx = stoi(frame.substr(HUMAN_FRAME_PREFIX.length(), 1));
 
             if (face_idx == 0) {
-                
-                stringstream ss;
-                for(size_t i = 0 ; i < monitored_frames.size(); ++i) {
-                    if(isInFieldOfView(listener, monitored_frames[i], frame)) {
-                        ROS_DEBUG_STREAM(monitored_frames[i] << " is in the field of view of " << frame);
-                        marker_pub.publish(makeMarker(i, monitored_frames[i], colors[i]));
-                        if (!ss.str().empty()) ss << " ";
-                        ss << monitored_frames[i];
-                    }
-                }
-                frames_in_fov.data = ss.str();
+                // frames_in_fov.data = ss.str();
                 frames_in_fov_pub.publish(frames_in_fov);
 
                 fov.range = RANGE;
