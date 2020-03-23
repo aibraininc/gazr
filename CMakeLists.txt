@@ -7,18 +7,19 @@ set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 
 add_definitions(-std=c++11 -DGAZR_VERSION=${VERSION})
+add_compile_options(-std=c++11)
 
-find_package(dlib REQUIRED)
-include_directories(${dlib_INCLUDE_DIRS})
 
-option(DEBUG_OUTPUT "Enable debug visualizations" OFF)
+add_subdirectory(/home/jacob/lib/dlib dlib_build)
+
+option(DEBUG_OUTPUT "Enable debug visualizations" ON)
 option(WITH_TOOLS "Compile sample tools" OFF)
 option(WITH_ROS "Build ROS nodes" ON)
 
 if(WITH_ROS)
 
-    find_package(catkin REQUIRED COMPONENTS 
-        roscpp 
+    find_package(catkin REQUIRED COMPONENTS
+        roscpp
         tf
         std_msgs
         visualization_msgs
@@ -32,11 +33,7 @@ if(WITH_ROS)
 
 endif()
 
-if(DEBUG_OUTPUT)
     find_package(OpenCV COMPONENTS core imgproc calib3d highgui REQUIRED)
-else()
-    find_package(OpenCV COMPONENTS core imgproc calib3d REQUIRED)
-endif()
 
 message(STATUS "OpenCV version: ${OpenCV_VERSION}")
 if(${OpenCV_VERSION} VERSION_GREATER 2.9.0)
@@ -53,13 +50,12 @@ if(WITH_ROS)
     )
 endif()
 
-if(DEBUG_OUTPUT)
-    add_definitions(-DHEAD_POSE_ESTIMATION_DEBUG)
-endif()
+
+add_definitions(-DHEAD_POSE_ESTIMATION_DEBUG)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_library(gazr SHARED src/head_pose_estimation.cpp)
-target_link_libraries(gazr ${dlib_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(gazr dlib ${OpenCV_LIBRARIES})
 
 if(WITH_ROS)
 
@@ -110,5 +106,3 @@ if(WITH_TOOLS)
     target_link_libraries(gazr_show_head_pose gazr ${OpenCV_LIBRARIES} ${Boost_LIBRARIES})
 
 endif()
-
-
